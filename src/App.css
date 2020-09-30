@@ -20,21 +20,59 @@ input {
 }
 
 button {
-  margin-left: 10px;
+  margin: 10px;
   padding: 18px;
   height: 50px;
   border: none;
   border-radius: 15px;
-  background-color: rosybrown;
-  color: white;
+  background-color: lightblue;
+  color: rgb(22, 65, 66);
   outline: none;
 }
 
 button:hover {
-  background-color: salmon;
+  background-color: rgb(22, 65, 66);
+  color: lightblue;
 }
 
 ul {
   list-style: none;
   font-size: xx-large;
+  margin: 0;
+  padding:0;
+}
+
+ul input {
+  height: 20px;
+  margin: 0;
+}
+
+.filter {
+  border: 1px solid salmon;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-direction: row;
+  color: salmon;
+}
+
+.features button{
+  border: 1px solid salmon;
+  background-color: white;
+  color: salmon;
+}
+
+.features button:hover {
+  color: white;
+  background: salmon;
+}
+
+.delete {
+  background: white;
+  border: 1px solid red
+} 
+
+.delete:hover {
+  background: red;
+  color: white;
 }
