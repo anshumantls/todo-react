@@ -1,11 +1,18 @@
 import React from 'react';
 import './App.css';
 
+//components
+import Remaining from './components/Remaining';
+import ToDoList from './components/ToDoList';
+import ToDoContext from './context/todoContext';
+import AddToDo from './components/AddToDo';
+ 
 class App extends React.Component  {
   state = {
     newTask: '',
     taskList : [
-      {taskName:'new',id:1,checked:false}
+      {taskName:'task 1',id:1,checked:false},
+      {taskName:'task 2',id:2,checked:true}
     ],
     filterVariable: 'all'
   }
@@ -76,70 +83,71 @@ class App extends React.Component  {
     this.setState({taskList:newList});
   }
 
+  _OnChangeNewTask = (value) => {
+    this.setState({newTask:value})
+  }
+
   render() {
-    let ToDoList = '';
+    let propList = '';
     if (this.state.filterVariable === 'all') {
-      ToDoList = this.state.taskList.map((task) => {
-        // console.log('all');
-        return <li key={task.id}>
-                  <input type="checkbox" onChange={() => this._MarkAsDoneUndone(task.id)} checked={task.checked}/>
-                  <input type="text" value={task.taskName} onChange={(event) => this._EditExistingTask(event,task.id)}/>
-                  <button className='delete' onClick={() => this._DeleteTask(task.id)}>Delete</button>
-                </li>;
-      }); 
+      propList = this.state.taskList;
     }
     else if (this.state.filterVariable === 'remaining') {
-      ToDoList = this.state.taskList.filter(elem => {
+      propList = this.state.taskList.filter(elem => {
         return elem.checked === true
-      })
-      .map((task) => {
-        // console.log('remaining');
-        return <li key={task.id}>
-                  <input type="checkbox" onChange={() => this._MarkAsDoneUndone(task.id)} checked={task.checked}/>
-                  <input type="text" value={task.taskName} onChange={(event) => this._EditExistingTask(event,task.id)}/>
-                  <button className='delete' onClick={() => this._DeleteTask(task.id)}>Delete</button>
-                </li>;
       })
     }
     else if (this.state.filterVariable === 'done') {
-      ToDoList = this.state.taskList.filter(elem => {
+      propList = this.state.taskList.filter(elem => {
         return elem.checked === false
       })
-      .map((task) => {
-        // console.log('remaining');
-        return <li key={task.id}>
-                  <input type="checkbox" onChange={() => this._MarkAsDoneUndone(task.id)} checked={task.checked}/>
-                  <input type="text" value={task.taskName} onChange={(event) => this._EditExistingTask(event,task.id)}/>
-                  <button className='delete' onClick={() => this._DeleteTask(task.id)}>Delete</button>
-                </li>;
-      })
     }
+    let remaining = 0;
+    this.state.taskList.filter(elem => {
+      if (elem.checked === false) {
+        remaining++;
+      }
+      return true;
+    })
 
     return (
       <div className="App">
+        <ToDoContext.Provider value={
+          {
+            markAsDoneUndone: this._MarkAsDoneUndone,
+            editTask: this._EditExistingTask,
+            delete: this._DeleteTask,
+            onChangeAdd: this._OnChangeNewTask,
+            addToDo: this._AddToDo,
+            newTaskValue: this.state.newTask
+          }
+        }>
+          <h1>todos</h1>
 
-        <h1>todos</h1>
+          {/* <input placeholder="Enter a new task"
+            value={this.state.newTask} 
+            onChange={(event) => {this.setState({newTask : event.target.value})}}/>
+          <button onClick={this._AddToDo}>Add Task</button> */}
+          <AddToDo/>
+          <div className='features'>
+            <button onClick={this._MarkAllAsDone}>Mark All Done</button>
+            <button onClick={this._ClearMarked}>Clear Done</button>
+          </div>
 
-        <input placeholder="Enter a new task"
-          value={this.state.newTask} 
-          onChange={(event) => {this.setState({newTask : event.target.value})}}/>
-        <button onClick={this._AddToDo}>Add Task</button>
-        <div className='features'>
-          <button onClick={this._MarkAllAsDone}>check all</button>
-          <button onClick={this._ClearMarked}>clear done</button>
-        </div>
-        
-        <div>
-          <ul>
-            {ToDoList}
-          </ul>
-        </div>
+          <div>
+            <ul>
+              <ToDoList list={propList}/>
+            </ul>
+          </div>
 
-        <div className='filter'>
-          <h3 onClick={() => this.setState({filterVariable:'all'}, () => {console.log(this.state.filterVariable)})}>show all</h3>
-          <h3 onClick={() => this.setState({filterVariable:'remaining'}, () => {console.log(this.state.filterVariable)})}>show done</h3>
-          <h3 onClick={() => this.setState({filterVariable:'done'}, () => {console.log(this.state.filterVariable)})}>show remaining</h3>
-        </div>
+          <div className='filter'>
+            <h3 onClick={() => this.setState({filterVariable:'all'}, () => {console.log(this.state.filterVariable)})}>Show All</h3>
+            <h3 onClick={() => this.setState({filterVariable:'remaining'}, () => {console.log(this.state.filterVariable)})}>Show Completed</h3>
+            <h3 onClick={() => this.setState({filterVariable:'done'}, () => {console.log(this.state.filterVariable)})}>Show Remaining</h3>
+          </div>
+          <Remaining value={remaining}/>
+        </ToDoContext.Provider>
+
       </div>
 
     );
