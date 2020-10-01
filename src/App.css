@@ -56,6 +56,11 @@ ul input {
   color: salmon;
 }
 
+.features {
+  display: flex;
+  justify-content: space-evenly;
+}
+
 .features button{
   border: 1px solid salmon;
   background-color: white;
@@ -67,6 +72,10 @@ ul input {
   background: salmon;
 }
 
+.features input {
+  height: 20px;
+}
+
 .delete {
   background: white;
   border: 1px solid red
@@ -75,4 +84,8 @@ ul input {
 .delete:hover {
   background: red;
   color: white;
+}
+
+.active {
+  color: rgb(108, 152, 187);;
 }

@@ -17,8 +17,8 @@ class App extends React.Component  {
     filterVariable: 'all'
   }
 
-  _AddToDo = () => {
-    if (this.state.newTask !== '') {
+  _addToDO = () => {
+    if (this.state.newTask.trim() !== '') {
       const newTask = {
         taskName : this.state.newTask,
         id : Date.now(),
@@ -32,7 +32,7 @@ class App extends React.Component  {
     }
   }
 
-  _DeleteTask = (id) => {
+  _deleteToDo = (id) => {
     let newTaskList = [...this.state.taskList];
     newTaskList = newTaskList.filter(elem => {
       return elem.id !== id;
@@ -42,30 +42,45 @@ class App extends React.Component  {
     });
   }
 
-  _MarkAsDoneUndone = (id) => {
-    const newTaskList = [...this.state.taskList];
-    for (let elem of newTaskList) {
-      if (elem.id === id) {
-        elem.checked = !elem.checked;
+  _markAsDoneUndone = (id) => {
+    const newTaskList = [...this.state.taskList];  
+    newTaskList.forEach(task => {
+      if (task.id === id) {
+        task.checked = !task.checked;
       }
-    }    
+    }) 
     this.setState({taskList:newTaskList}, () => {
       console.log(this.state.taskList);
     });
   }
 
-  _MarkAllAsDone = () => {
-    const newTaskList = [...this.state.taskList];
-    for (let elem of newTaskList) {
-      if (elem.checked !== true) {
-        elem.checked = true;
+  _markAllAsDone = () => {
+    if (this.state.taskList.length === 0) {
+      return false;
+    } else {
+      let newTaskList = [...this.state.taskList];
+      let value = newTaskList.every( elem => {
+        return elem.checked
+      })
+      if (value) {
+        newTaskList.forEach(task => {
+          if (task.checked) {
+            task.checked = false
+          }
+        })
+      } else {
+        newTaskList.forEach(task => {
+          if (task.checked !== true) {
+            task.checked = true
+          }
+        })
       }
+      this.setState({taskList:newTaskList});
+      console.log(newTaskList);
     }
-    this.setState({taskList:newTaskList});
-    console.log(newTaskList);
   }
 
-  _ClearMarked = () => {
+  _clearDone = () => {
     let newTaskList = [...this.state.taskList];
     newTaskList = newTaskList.filter(elem => {
       return elem.checked === false;
@@ -73,65 +88,74 @@ class App extends React.Component  {
     this.setState({taskList:newTaskList});
   }
 
-  _EditExistingTask = (event,id) => {
+  _editExistingTask = (event,id) => {
     let newList = [...this.state.taskList]
-    for (let elem of newList) {
-      if (elem.id === id) {
-        elem.taskName = event.target.value
+    newList.forEach(task => {
+      if (task.id === id) {
+        task.taskName = event.target.value
       }
-    }
+    });
     this.setState({taskList:newList});
   }
 
-  _OnChangeNewTask = (value) => {
+  _onChangeNewTask = (value) => {
     this.setState({newTask:value})
   }
 
   render() {
     let propList = '';
+    let all = '',remain = '',done='';
     if (this.state.filterVariable === 'all') {
       propList = this.state.taskList;
+      all = 'active';
+      remain = '';
+      done = '';
     }
     else if (this.state.filterVariable === 'remaining') {
       propList = this.state.taskList.filter(elem => {
         return elem.checked === true
-      })
+      });
+      all = '';
+      remain = 'active';
+      done = '';
     }
     else if (this.state.filterVariable === 'done') {
       propList = this.state.taskList.filter(elem => {
         return elem.checked === false
-      })
+      });
+      all = '';
+      remain = '';
+      done = 'active';
     }
     let remaining = 0;
-    this.state.taskList.filter(elem => {
-      if (elem.checked === false) {
-        remaining++;
-      }
-      return true;
-    })
+    if (this.state.taskList.length > 0) {
+      this.state.taskList.filter(elem => {
+        if (elem.checked === false) {
+          remaining++;
+        }
+        return true;
+      });
+    }
+    
 
     return (
       <div className="App">
         <ToDoContext.Provider value={
           {
-            markAsDoneUndone: this._MarkAsDoneUndone,
-            editTask: this._EditExistingTask,
-            delete: this._DeleteTask,
-            onChangeAdd: this._OnChangeNewTask,
-            addToDo: this._AddToDo,
+            markAsDoneUndone: this._markAsDoneUndone,
+            editTask: this._editExistingTask,
+            delete: this._deleteToDo,
+            onChangeAdd: this._onChangeNewTask,
+            addToDo: this._addToDO,
             newTaskValue: this.state.newTask
           }
         }>
           <h1>todos</h1>
-
-          {/* <input placeholder="Enter a new task"
-            value={this.state.newTask} 
-            onChange={(event) => {this.setState({newTask : event.target.value})}}/>
-          <button onClick={this._AddToDo}>Add Task</button> */}
+          
           <AddToDo/>
           <div className='features'>
-            <button onClick={this._MarkAllAsDone}>Mark All Done</button>
-            <button onClick={this._ClearMarked}>Clear Done</button>
+            <input type='checkbox' onChange={this._markAllAsDone}/><p>Mark All Done/Undone</p>
+            <button onClick={this._clearDone}>Clear Done</button>
           </div>
 
           <div>
@@ -141,13 +165,12 @@ class App extends React.Component  {
           </div>
 
           <div className='filter'>
-            <h3 onClick={() => this.setState({filterVariable:'all'}, () => {console.log(this.state.filterVariable)})}>Show All</h3>
-            <h3 onClick={() => this.setState({filterVariable:'remaining'}, () => {console.log(this.state.filterVariable)})}>Show Completed</h3>
-            <h3 onClick={() => this.setState({filterVariable:'done'}, () => {console.log(this.state.filterVariable)})}>Show Remaining</h3>
+            <h3 className={all} onClick={() => this.setState({filterVariable:'all'}, () => {console.log(this.state.filterVariable)})}>Show All</h3>
+            <h3 className={remain} onClick={() => this.setState({filterVariable:'remaining'}, () => {console.log(this.state.filterVariable)})}>Show Completed</h3>
+            <h3 className={done} onClick={() => this.setState({filterVariable:'done'}, () => {console.log(this.state.filterVariable)})}>Show Remaining</h3>
           </div>
           <Remaining value={remaining}/>
         </ToDoContext.Provider>
-
       </div>
 
     );
