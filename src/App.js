@@ -105,6 +105,7 @@ class App extends React.Component  {
   render() {
     let propList = '';
     let all = '',remain = '',done='';
+    let checked = false;
     if (this.state.filterVariable === 'all') {
       propList = this.state.taskList;
       all = 'active';
@@ -136,6 +137,10 @@ class App extends React.Component  {
         return true;
       });
     }
+   
+    checked = this.state.taskList.every(each => {
+      return each.checked;
+    })
     
 
     return (
@@ -154,7 +159,7 @@ class App extends React.Component  {
           
           <AddToDo/>
           <div className='features'>
-            <input type='checkbox' onChange={this._markAllAsDone}/><p>Mark All Done/Undone</p>
+            <input type='checkbox' onChange={this._markAllAsDone} checked={checked}/><p>Mark All Done/Undone</p>
             <button onClick={this._clearDone}>Clear Done</button>
           </div>
 
